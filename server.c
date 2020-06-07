@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <time.h> 
 
+
 int main(int argc, char *argv[])
 {
     int listenfd = 0, connfd = 0;
@@ -16,7 +17,26 @@ int main(int argc, char *argv[])
 
     char sendBuff[1025];
     time_t ticks; 
-
+    
+    int column=10;
+    int row=10;
+    
+    if (argc==1)
+    {   
+        printf("column = %d, row=%d",column,row);
+    }else if( argc ==3)
+    {   
+            column=atoi(argv[1]);
+                row=atoi(argv[2]);
+           printf("column = %d, row=%d",column,row);
+       
+    }else
+    {
+        printf("invalid input!\n");
+        exit(1);
+    }
+   
+    
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
     memset(&serv_addr, '0', sizeof(serv_addr));
     memset(sendBuff, '0', sizeof(sendBuff)); 
@@ -36,8 +56,13 @@ int main(int argc, char *argv[])
         ticks = time(NULL);
         snprintf(sendBuff, sizeof(sendBuff), "%.24s\r\n", ctime(&ticks));
         write(connfd, sendBuff, strlen(sendBuff)); 
-
+        char sbBuff[1023];
+        sbBuff[0]='s';
+        sbBuff[1]='b';
+        write(connfd, sbBuff, strlen(sbBuff)); 
+        
         close(connfd);
+       
         sleep(1);
      }
 }

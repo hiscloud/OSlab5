@@ -8,10 +8,11 @@
 #include <string.h>
 #include <sys/types.h>
 #include <time.h> 
-
+//#include <iostream>
+//using namespace std;
 
 int main(int argc, char *argv[])
-{
+{   
     int listenfd = 0, connfd = 0;
     struct sockaddr_in serv_addr; 
 
@@ -50,7 +51,7 @@ int main(int argc, char *argv[])
     listen(listenfd, 10); 
 
     while(1)
-    {
+    {   
         connfd = accept(listenfd, (struct sockaddr*)NULL, NULL); 
 
         ticks = time(NULL);
@@ -59,10 +60,11 @@ int main(int argc, char *argv[])
         char sbBuff[1023];
         sbBuff[0]='s';
         sbBuff[1]='b';
+        sbBuff[2]='\n';
         write(connfd, sbBuff, strlen(sbBuff)); 
         
         close(connfd);
-       
+      
         sleep(1);
      }
 }

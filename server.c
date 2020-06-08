@@ -15,9 +15,9 @@
 
 int main(int argc, char *argv[])
 {   
-    int listenfd = 0, connfd = 0;
+    int listenfd = 0, connfd = 0, n=0;
     struct sockaddr_in serv_addr; 
-
+    char recvBuff[1024];
     char sendBuff[1025];
     time_t ticks; 
     
@@ -42,19 +42,20 @@ int main(int argc, char *argv[])
     //map init
     char map[row][column];
     for(int i=0;i<row;i++){
-        memset(map[i],'0',sizeof(map[i]));
-        fputs(map[i], stdout);
+        memset(map[i],'1',sizeof(map[i]));
+        for(int j=0;j<column;j++)
+            printf("%c",map[i][j]);
         printf("\n");
     }
     
     
-    printf("waiting for client...\n");
+    printf("Server started...\n");
     
     
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
     memset(&serv_addr, '0', sizeof(serv_addr));
     memset(sendBuff, '0', sizeof(sendBuff)); 
-
+    memset(recvBuff,'0',sizeof(recvBuff));
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     serv_addr.sin_port = htons(5000); 
@@ -65,18 +66,42 @@ int main(int argc, char *argv[])
     //fflush(stdout);
     while(1)
     {   connfd = accept(listenfd, (struct sockaddr*)NULL, NULL); 
-       // ticks = time(NULL);
-       // snprintf(sendBuff, sizeof(sendBuff), "%.24s\r\n", ctime(&ticks));
-        //write(connfd, sendBuff, strlen(sendBuff)); 
+        ticks = time(NULL);
+        snprintf(sendBuff, sizeof(sendBuff), "%.24s\r\n", ctime(&ticks));
+     
+        write(connfd, sendBuff, strlen(sendBuff));
+     //char nextline[1];
+     // nextline[0]='\n';
+    // for (int i=0;i<row;i++)
+     //   {   write(connfd,map[i],column);
+      //      write(connfd,nextline,1);
+       // }
+     
+        read(connfd, recvBuff, strlen(recvBuff));
+        
+    
+   //  while ( (n = read(connfd, recvBuff, sizeof(recvBuff)-1)) > 0)
+   // {
+       // cout<<n<<endl;
+   //     recvBuff[n] = 0;
+ //       if(fputs(recvBuff, stdout) == EOF)
+ //       {
+  //          printf("\n Error : Fputs error\n");
+   //     }
+    //} 
         //matrix
-        char nextline[1];
-        nextline[0]='\n';
-        printf("connected with client\n");
-        for (int i=0;i<row;i++)
-        {   write(connfd,map[i],column);
-            write(connfd,nextline,1);
+        
+       
+        printf("connected with client");
+       // fputs(recvBuff, stdout);
+     if(fputs(recvBuff, stdout) == EOF)
+        {
+            printf("\n Error : Fputs error\n");
         }
-        close(connfd);
+        
+       write(connfd, "sbbb", strlen("sbbb"));
+        
+     close(connfd);
         sleep(1);
      }
 }

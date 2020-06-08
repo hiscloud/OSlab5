@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
 {
     int sockfd = 0, n = 0;
     char recvBuff[1024];
+    char sendBuff[1025];
     struct sockaddr_in serv_addr; 
 
     if(argc != 2)
@@ -22,7 +23,7 @@ int main(int argc, char *argv[])
         printf("\n Usage: %s <ip of server> \n",argv[0]);
         return 1;
     } 
-
+    memset(sendBuff,'0',sizeof(sendBuff));
     memset(recvBuff, '0',sizeof(recvBuff));
     if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
@@ -45,8 +46,10 @@ int main(int argc, char *argv[])
     {
        printf("\n Error : Connect Failed \n");
        return 1;
+    
     } 
-
+   
+  /*  
     while ( (n = read(sockfd, recvBuff, sizeof(recvBuff)-1)) > 0)
     {
        // cout<<n<<endl;
@@ -56,11 +59,22 @@ int main(int argc, char *argv[])
             printf("\n Error : Fputs error\n");
         }
     } 
-    
-    if(n < 0)
+      if(n < 0)
     {
         printf("\n Read error \n");
-    } 
+    } */
+    
+    read(sockfd, recvBuff, strlen(recvBuff));
+    fputs(recvBuff,stdout);
+     
+    //snprintf(sendBuff, sizeof(sendBuff),  argv[1]);
+     
+    write(sockfd,argv[1],strlen(argv[1]));
+    
+    
+     read(sockfd, recvBuff, strlen(recvBuff));
+     fputs(recvBuff,stdout);
+    
     //for (int i=0;i<strlen(recvBuff);i++)
    //     cout<<recvBuff[i];
     return 0;

@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <errno.h>
 #include <arpa/inet.h> 
+#include <iostream>
+using namespace std;
 
 int main(int argc, char *argv[])
 {
@@ -53,11 +55,12 @@ int main(int argc, char *argv[])
             printf("\n Error : Fputs error\n");
         }
     } 
-
+   write(sockfd, recvBuff, strlen(recvBuff)); 
     if(n < 0)
     {
         printf("\n Read error \n");
     } 
-
+    for (int i=0;i<30;i++)
+        cout<<recvBuff[i]<<endl;
     return 0;
 }

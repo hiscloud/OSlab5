@@ -20,6 +20,7 @@ int main(int argc, char *argv[])
     char recvBuff[1024];
     char sendBuff[1025];
     char endC='@';
+    char sepC='~';
     time_t ticks; 
     
     int column=10;
@@ -43,7 +44,7 @@ int main(int argc, char *argv[])
     //map init
     char map[row][column];
     for(int i=0;i<row;i++){
-        memset(map[i],'1',sizeof(map[i]));
+        memset(map[i],'0',sizeof(map[i]));
         for(int j=0;j<column;j++)
             printf("%c",map[i][j]);
         printf("\n");
@@ -67,10 +68,30 @@ int main(int argc, char *argv[])
     //fflush(stdout);
     while(1)
     {   connfd = accept(listenfd, (struct sockaddr*)NULL, NULL); 
-        ticks = time(NULL);
-        snprintf(sendBuff, sizeof(sendBuff), "%.24s\r\n", ctime(&ticks));
+       
+     //send n of columns and rows
+    
+        char r[11],c[11],sendIntC[23]; 
+       // memset(sendIntC,'0',sizeof(sendIntC));
+     //memset(r,'0',sizeof(r));
+    // memset(c,'0',sizeof(c));
+        sprintf(r,"%c", row);
+        sprintf(c,"%c",column);
+        for(int i=0;i<23;i++)
+        {   if(i<11)
+                sendIntC[i]=c[i];
+            if(i>=12)
+                sendIntC[i]=r[i-12];
+        }
+        sendIntC[11]=sepC;
+        printf(r);
+        printf(c);
+        printf(sendIntC);
+            fflush(stdout);
+       // ticks = time(NULL);
+     //   snprintf(sendBuff, sizeof(sendBuff), "%.24s\r\n", ctime(&ticks));
      
-        write(connfd, sendBuff, strlen(sendBuff));
+        write(connfd, sendIntC, strlen(sendIntC));
      //char nextline[1];
      // nextline[0]='\n';
     // for (int i=0;i<row;i++)

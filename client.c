@@ -14,9 +14,11 @@
 int main(int argc, char *argv[])
 {
     int sockfd = 0, n = 0;
+    int column,row;
     char recvBuff[1024];
     char sendBuff[1025];
     char endC='@';
+    char sepC='~';
     struct sockaddr_in serv_addr; 
 
     if(argc != 2)

@@ -11,20 +11,25 @@
 //#include <iostream>
 //using namespace std;
 
+//if start another server right after ending one, connection issue may happen. Wait about 20s after close one server.
 
 
 int main(int argc, char *argv[])
 {   
-    int listenfd = 0, connfd = 0, n=0;
+    int listenfd = 0, connfd = 0, n=0,i=0;
     struct sockaddr_in serv_addr; 
     char recvBuff[1024];
     char sendBuff[1025];
+    char r[11],c[11]; //initial 
     char endC='@';
     char sepC='~';
     time_t ticks; 
+    int man=1;
     
-    int column=10;
-    int row=10;
+    int column=10;//init
+    int row=10;//init
+    int userCol,userRow;
+    char userColC[11],userRowC[11];
     
     if (argc==1)
     {   
@@ -50,14 +55,12 @@ int main(int argc, char *argv[])
         printf("\n");
     }
     
-    
     printf("Server started...\n");
     
     
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
     memset(&serv_addr, '0', sizeof(serv_addr));
-    memset(sendBuff, endC, sizeof(sendBuff)); 
-    memset(recvBuff,endC,sizeof(recvBuff));
+   
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     serv_addr.sin_port = htons(6666); 
@@ -65,70 +68,64 @@ int main(int argc, char *argv[])
     bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)); 
     listen(listenfd, 10); 
     
-    //fflush(stdout);
+    
     while(1)
-    {   connfd = accept(listenfd, (struct sockaddr*)NULL, NULL); 
-       
-     //send n of columns and rows
-    
-        char r[11],c[11],sendIntC[23]; 
-       // memset(sendIntC,'0',sizeof(sendIntC));
-     //memset(r,'0',sizeof(r));
-    // memset(c,'0',sizeof(c));
-        sprintf(r,"%c", row);
-        sprintf(c,"%c",column);
-        for(int i=0;i<23;i++)
-        {   if(i<11)
-                sendIntC[i]=c[i];
-            if(i>=12)
-                sendIntC[i]=r[i-12];
-        }
-        sendIntC[11]=sepC;
-        printf(r);
-        printf(c);
-        printf(sendIntC);
-            fflush(stdout);
-       // ticks = time(NULL);
-     //   snprintf(sendBuff, sizeof(sendBuff), "%.24s\r\n", ctime(&ticks));
-     
-        write(connfd, sendIntC, strlen(sendIntC));
-     //char nextline[1];
-     // nextline[0]='\n';
-    // for (int i=0;i<row;i++)
-     //   {   write(connfd,map[i],column);
-      //      write(connfd,nextline,1);
-       // }
-     
+    {   connfd = accept(listenfd, (struct sockaddr*)NULL, NULL); //connected
+        memset(sendBuff, endC, sizeof(sendBuff)); 
+        memset(recvBuff,endC,sizeof(recvBuff));
+     //read the ip address
         read(connfd, recvBuff, strlen(recvBuff));
+     //send n of columns and rows
+        sprintf(r,"%ld", row);
+        sprintf(c,"%ld",column);
+     char ch[2];
+     ch[0]=sepC;
+     strcat(c,ch);
+     strcat(c,r);
+        write(connfd, c,strlen(c));
         
-    
-   //  while ( (n = read(connfd, recvBuff, sizeof(recvBuff)-1)) > 0)
-   // {
-       // cout<<n<<endl;
-   //     recvBuff[n] = 0;
- //       if(fputs(recvBuff, stdout) == EOF)
- //       {
-  //          printf("\n Error : Fputs error\n");
-   //     }
-    //} 
-        //matrix
-        printf("connected with client ");
-       // fputs(recvBuff, stdout);
-    // char c=' ';
+    //client info
+     printf("connected with client ");
      int i=0;
         while (recvBuff[i]!=endC)
         {   
             printf("%c",recvBuff[i]);          
             i++;
-            
         }
-     printf("\n"); //ip address
+     printf("\n"); //ip address finished 
+     //diverge
+     if(man)
+     {//read user's number
+        memset(recvBuff,endC,sizeof(recvBuff));
+        read(connfd, recvBuff, strlen(recvBuff));
+        i=0;
+        while (recvBuff[i]!=endC)
+        {   
+            printf("%c",recvBuff[i]);          
+            i++;
+        }
+        i=0;
+        while(recvBuff[i]!=sepC)
+        {
+            userColC[i]=recvBuff[i];
+            i++;
+        }
+        i++;
+        int k=0;
+        while(recvBuff[i]!=endC)
+        {   userRowC[k]=recvBuff[i];
+            k++;
+            i++;    
+        }
+        userCol=atoi(userColC);
+        userRow=atoi(userRowC);
+        printf("The user booked the seat on column =%d and row= %d \n",userCol,userRow);
+     }else{
      
+     }
      
      fflush(stdout);
-       write(connfd, "sbbb", strlen("sbbb"));
-        
      close(connfd);
-        sleep(1);
+     sleep(1);
      }
 }

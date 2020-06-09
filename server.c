@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in serv_addr; 
     char recvBuff[1024];
     char sendBuff[1025];
+    char endC='@';
     time_t ticks; 
     
     int column=10;
@@ -54,11 +55,11 @@ int main(int argc, char *argv[])
     
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
     memset(&serv_addr, '0', sizeof(serv_addr));
-    memset(sendBuff, '0', sizeof(sendBuff)); 
-    memset(recvBuff,'0',sizeof(recvBuff));
+    memset(sendBuff, endC, sizeof(sendBuff)); 
+    memset(recvBuff,endC,sizeof(recvBuff));
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_addr.sin_port = htons(5000); 
+    serv_addr.sin_port = htons(6666); 
 
     bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)); 
     listen(listenfd, 10); 
@@ -90,15 +91,20 @@ int main(int argc, char *argv[])
    //     }
     //} 
         //matrix
-        
-       
-        printf("connected with client");
+        printf("connected with client ");
        // fputs(recvBuff, stdout);
-     if(fputs(recvBuff, stdout) == EOF)
-        {
-            printf("\n Error : Fputs error\n");
+    // char c=' ';
+     int i=0;
+        while (recvBuff[i]!=endC)
+        {   
+            printf("%c",recvBuff[i]);          
+            i++;
+            
         }
-        
+     printf("\n"); //ip address
+     
+     
+     fflush(stdout);
        write(connfd, "sbbb", strlen("sbbb"));
         
      close(connfd);

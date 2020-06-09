@@ -22,14 +22,27 @@ int main(int argc, char *argv[])
     char sendBuff[1025];
     char endC='@';
     char sepC='~';
-    int man=1;
+    char man;
     struct sockaddr_in serv_addr; 
 
-    if(argc != 2)
+    if(argc != 4)
     {
-        printf("\n Usage: %s <ip of server> \n",argv[0]);
+        printf("\n Usage: %s <ip of server> <portnumber(5000)><manual/automatic> \n",argv[0]);
         return 1;
-    } 
+    } else if(strcmp(argv[2], "5000") != 0){
+        printf("please enter 5000 as port number!\n");
+        return 1;
+    } else if(strcmp(argv[3], "manual") != 0&&strcmp(argv[3], "automatic") != 0){
+        printf("enter either manual or automatic!\n");
+            return 1;
+    }
+    if (strcmp(argv[3], "manual") == 0){
+        man='1';
+    }else
+        man='0';
+    
+    
+    
     memset(sendBuff,endC,sizeof(sendBuff));
     memset(recvBuff,endC,sizeof(recvBuff));
     if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -41,7 +54,7 @@ int main(int argc, char *argv[])
     memset(&serv_addr,'0',sizeof(serv_addr)); 
 
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(6666); 
+    serv_addr.sin_port = htons(5000); 
 
     if(inet_pton(AF_INET, argv[1], &serv_addr.sin_addr)<=0)
     {
@@ -56,6 +69,10 @@ int main(int argc, char *argv[])
     
     } 
    //////////////////////////////////////////////////////////////////////
+    char cc[2];
+    cc[0]=man;
+    
+    strcat(argv[1],cc);
      write(sockfd,argv[1],strlen(argv[1])); //pass the ip address
   /*  
     while ( (n = read(sockfd, recvBuff, sizeof(recvBuff)-1)) > 0)
@@ -73,12 +90,7 @@ int main(int argc, char *argv[])
     } */
     //reading the number in the buffer
     read(sockfd, recvBuff, strlen(recvBuff));
-      i=0;
-        while (recvBuff[i]!=endC)
-        {   
-            printf("%c",recvBuff[i]);          
-            i++;
-        }
+
     //extract the numbers from the buffer
     i=0;
     while(recvBuff[i]!=sepC)
@@ -97,7 +109,7 @@ int main(int argc, char *argv[])
     row=atoi(r);
     printf("The map has %d columns and %d rows.\n",column,row);
     //diverge
-    if(man)
+    if(man=='1')
     {   printf("enter the column number of the seat you want to book: ");
         cin>>userCol;  
         printf("enter the row number: ");
@@ -110,10 +122,38 @@ int main(int argc, char *argv[])
      strcat(userColC,ch);
      strcat(userColC,userRowC);
      write(sockfd, userColC,strlen(userColC));
-     //   write(sockfd, &sepC,1);
-      //  write(sockfd, userRowC, strlen(userRowC));
+    //read the reply
+     memset(recvBuff,endC,sizeof(recvBuff));
+     read(sockfd, recvBuff, strlen(recvBuff));
+     i=0; 
+     while(recvBuff[i]!=endC)
+    {  cout<<recvBuff[i];
+        i++;
+    }
     }else
-    {   
+    {   while(1){
+            srand(time(0));
+            userCol=rand()%column;
+            userRow=rand()%row;
+            printf("you randomed column=%d, row= %d\n",userCol,userRow);
+             //send numbers
+            sprintf(userRowC,"%ld",userRow);
+            sprintf(userColC,"%ld",userCol);
+            char ch[2];
+            ch[0]=sepC;
+            strcat(userColC,ch);
+            strcat(userColC,userRowC);
+            write(sockfd, userColC,strlen(userColC));
+            //read the reply
+            memset(recvBuff,endC,sizeof(recvBuff));
+            read(sockfd, recvBuff, strlen(recvBuff));
+            i=0; 
+            while(recvBuff[i]!=endC)
+            {  cout<<recvBuff[i];
+                i++;
+            }
+        sleep(3);
+        }
     }
     //snprintf(sendBuff, sizeof(sendBuff),  argv[1]);
      

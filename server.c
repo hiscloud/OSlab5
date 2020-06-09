@@ -8,8 +8,8 @@
 #include <string.h>
 #include <sys/types.h>
 #include <time.h> 
-//#include <iostream>
-//using namespace std;
+#include <iostream>
+using namespace std;
 
 //if start another server right after ending one, connection issue may happen. Wait about 20s after close one server.
 
@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     char endC='@';
     char sepC='~';
     time_t ticks; 
-    int man=1;
+    char man;
     
     int column=10;//init
     int row=10;//init
@@ -39,6 +39,10 @@ int main(int argc, char *argv[])
     {   
             column=atoi(argv[1]);
              row=atoi(argv[2]);
+            if (column<=0||row<=0){
+                printf("input numbers larger than 0");
+                exit(1);
+            }
            printf("column = %d, row=%d\n",column,row);
     }else
     {
@@ -63,7 +67,7 @@ int main(int argc, char *argv[])
    
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_addr.sin_port = htons(6666); 
+    serv_addr.sin_port = htons(5000); 
 
     bind(listenfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)); 
     listen(listenfd, 10); 
@@ -87,23 +91,21 @@ int main(int argc, char *argv[])
     //client info
      printf("connected with client ");
      int i=0;
-        while (recvBuff[i]!=endC)
+        while (recvBuff[i+1]!=endC)
         {   
             printf("%c",recvBuff[i]);          
             i++;
         }
+     man=recvBuff[i];
      printf("\n"); //ip address finished 
      //diverge
-     if(man)
+     if(man=='1')
      {//read user's number
+        memset(userColC,endC,sizeof(userColC));
+        memset(userRowC,endC,sizeof(userRowC));
         memset(recvBuff,endC,sizeof(recvBuff));
         read(connfd, recvBuff, strlen(recvBuff));
-        i=0;
-        while (recvBuff[i]!=endC)
-        {   
-            printf("%c",recvBuff[i]);          
-            i++;
-        }
+
         i=0;
         while(recvBuff[i]!=sepC)
         {
@@ -119,9 +121,67 @@ int main(int argc, char *argv[])
         }
         userCol=atoi(userColC);
         userRow=atoi(userRowC);
-        printf("The user booked the seat on column =%d and row= %d \n",userCol,userRow);
-     }else{
-     
+        printf("The user choose the seat on column =%d and row= %d \n",userCol,userRow);
+        if(map[userRow][userCol]=='0')//avilable 
+        {   map[userRow][userCol]='1';
+            printf("user booked a seat.\n");
+            write(connfd,"You successfully booked a seat!\n",sizeof("You successfully booked a seat!\n"));
+            for(int i=0;i<row;i++)
+            {
+                for(int j=0;j<column;j++)
+                    printf("%c",map[i][j]);
+                printf("\n");
+            }
+        }else//unavailiable
+        {   printf("user failed to book that seat\n");
+         write(connfd,"That seat is unavailable!\n",sizeof("That seat is unavailable!\n"));
+        }
+     }else{//auto
+        bool full=false;
+        while(!full){
+            full=true;
+            for( int i=0;i<row;i++)
+                for(int j=0;j<column;j++)
+                    if (map[i][j]=='0')
+                        full=false;
+            
+        //read user's number
+        memset(userColC,endC,sizeof(userColC));
+        memset(userRowC,endC,sizeof(userRowC));
+        memset(recvBuff,endC,sizeof(recvBuff));
+        read(connfd, recvBuff, strlen(recvBuff));
+
+        i=0;
+        while(recvBuff[i]!=sepC)
+        {
+            userColC[i]=recvBuff[i];
+            i++;
+        }
+        i++;
+        int k=0;
+        while(recvBuff[i]!=endC)
+        {   userRowC[k]=recvBuff[i];
+            k++;
+            i++;    
+        }
+        userCol=atoi(userColC);
+        userRow=atoi(userRowC);
+        printf("The user choose the seat on column =%d and row= %d \n",userCol,userRow);
+        if(map[userRow][userCol]=='0')//avilable 
+        {   map[userRow][userCol]='1';
+            printf("user booked a seat.\n");
+            write(connfd,"You successfully booked a seat!\n",sizeof("You successfully booked a seat!\n"));
+            for(int i=0;i<row;i++)
+            {
+                for(int j=0;j<column;j++)
+                    printf("%c",map[i][j]);
+                printf("\n");
+            }
+        }else//unavailiable
+        {   printf("user failed to book that seat\n");
+         write(connfd,"That seat is unavailable!\n",sizeof("That seat is unavailable!\n"));
+        }
+        }
      }
      
      fflush(stdout);

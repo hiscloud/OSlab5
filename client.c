@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
     int sockfd = 0, n = 0;
     char recvBuff[1024];
     char sendBuff[1025];
+    char endC='@';
     struct sockaddr_in serv_addr; 
 
     if(argc != 2)
@@ -23,18 +24,18 @@ int main(int argc, char *argv[])
         printf("\n Usage: %s <ip of server> \n",argv[0]);
         return 1;
     } 
-    memset(sendBuff,'0',sizeof(sendBuff));
-    memset(recvBuff, '0',sizeof(recvBuff));
+    memset(sendBuff,endC,sizeof(sendBuff));
+    memset(recvBuff,endC,sizeof(recvBuff));
     if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         printf("\n Error : Could not create socket \n");
         return 1;
     } 
 
-    memset(&serv_addr, '0', sizeof(serv_addr)); 
+    memset(&serv_addr,'0',sizeof(serv_addr)); 
 
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(5000); 
+    serv_addr.sin_port = htons(6666); 
 
     if(inet_pton(AF_INET, argv[1], &serv_addr.sin_addr)<=0)
     {
@@ -65,15 +66,27 @@ int main(int argc, char *argv[])
     } */
     
     read(sockfd, recvBuff, strlen(recvBuff));
-    fputs(recvBuff,stdout);
+     int i=0;
+        while (recvBuff[i]!=endC)
+        {   
+            printf("%c",recvBuff[i]);          
+            i++;
+            
+        }
      
     //snprintf(sendBuff, sizeof(sendBuff),  argv[1]);
      
-    write(sockfd,argv[1],strlen(argv[1]));
+     write(sockfd,argv[1],strlen(argv[1]));
     
-    
+      memset(recvBuff,endC,sizeof(recvBuff));
      read(sockfd, recvBuff, strlen(recvBuff));
-     fputs(recvBuff,stdout);
+      i=0;
+        while (recvBuff[i]!=endC)
+        {   
+            printf("%c",recvBuff[i]);          
+            i++;
+            
+        }
     
     //for (int i=0;i<strlen(recvBuff);i++)
    //     cout<<recvBuff[i];
